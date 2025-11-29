@@ -30,7 +30,11 @@ async function run() {
         // creating database and collections 
         const database = client.db("a10");
         const productsCollection = database.collection("products");
+        const importedProducts = database.collection('imports');
 
+        // product,all product, product details related api
+
+        // insert the exported product into productCollection
         app.post('/products', async (req, res) => {
             const product = req.body;
             const result = await productsCollection.insertOne(product)
@@ -42,15 +46,49 @@ async function run() {
             res.send(products);
         });
 
-        app.delete('/products/:id',async(req,res)=>{
+        app.get('/productDetails/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
+            const result = await productsCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.delete('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
             const result = await productsCollection.deleteOne(query)
             res.send(result)
         })
-        
 
+        app.get('/latestProducts', async (req, res) => {
+            const cursor = productsCollection.find().sort({ created_at: -1 }).limit(6);
+            const result = await cursor.toArray();
+            res.send(result)
+        })
 
+        // export related apis 
+        app.get('/myexports', async (req, res) => {
+            const email = req.query.email;
+            // console.log('the email is',email);
+            const query = { email: email };
+            console.log(query);
+            const cursor = productsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+
+        // import related apis
+        app.post('/myimports', async (req, res) => {
+            const imports = req.body;
+            const result = await importedProducts.insertOne(imports)
+            res.send(result)
+        })
+
+        app.get('/myimports',async(req,res)=>{
+            const cursor = importedProducts.find();
+            const result = await cursor.toArray();
+            res.send(result)
+        })
 
 
         // Send a ping to confirm a successful connection
