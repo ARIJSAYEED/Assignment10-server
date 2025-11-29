@@ -77,6 +77,16 @@ async function run() {
             res.send(result)
         })
 
+        app.delete('/myexports/:id',async(req,res)=>{
+            const id = req.params.id;
+            const query={_id:new ObjectId(id)}
+            const result=await productsCollection.deleteOne(query)
+            res.send(result)
+        })
+
+
+
+
         // import related apis
         app.post('/myimports', async (req, res) => {
             const imports = req.body;
@@ -89,6 +99,13 @@ async function run() {
             const query = { buyer_email: email }
             const cursor = importedProducts.find(query);
             const result = await cursor.toArray();
+            res.send(result)
+        })
+
+        app.delete('/myimports/:id',async(req,res)=>{
+            const id=req.params.id;
+            const query={_id:new ObjectId(id)}
+            const result= await importedProducts.deleteOne(query) 
             res.send(result)
         })
 
