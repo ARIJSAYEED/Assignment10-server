@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -9,7 +10,8 @@ app.use(express.json());
 
 // mongodb
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const uri = "mongodb+srv://a10:fr0ZOkXaxyrlSVL3@cluster0.taazt4c.mongodb.net/?appName=Cluster0";
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.taazt4c.mongodb.net/?appName=Cluster0`;
 
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -35,6 +37,20 @@ async function run() {
         // product,all product, product details related api
 
         // insert the exported product into productCollection
+
+        app.patch('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const { quantity } = req.body;
+
+            const result = await productsCollection.updateOne(
+                { _id: new ObjectId(id) },
+                { $set: { quantity } }
+            );
+
+            const updatedProduct = await productsCollection.findOne({ _id: new ObjectId(id) });
+            res.send(updatedProduct);
+        });
+
         app.post('/products', async (req, res) => {
             const product = req.body;
             const result = await productsCollection.insertOne(product)
@@ -77,14 +93,12 @@ async function run() {
             res.send(result)
         })
 
-        app.delete('/myexports/:id',async(req,res)=>{
+        app.delete('/myexports/:id', async (req, res) => {
             const id = req.params.id;
-            const query={_id:new ObjectId(id)}
-            const result=await productsCollection.deleteOne(query)
+            const query = { _id: new ObjectId(id) }
+            const result = await productsCollection.deleteOne(query)
             res.send(result)
         })
-
-
 
 
         // import related apis
@@ -102,10 +116,10 @@ async function run() {
             res.send(result)
         })
 
-        app.delete('/myimports/:id',async(req,res)=>{
-            const id=req.params.id;
-            const query={_id:new ObjectId(id)}
-            const result= await importedProducts.deleteOne(query) 
+        app.delete('/myimports/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await importedProducts.deleteOne(query)
             res.send(result)
         })
 
