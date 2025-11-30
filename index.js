@@ -14,7 +14,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.taazt4c.mongodb.net/?appName=Cluster0`;
 
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -29,7 +29,6 @@ async function run() {
         await client.connect();
 
 
-        // creating database and collections 
         const database = client.db("a10");
         const productsCollection = database.collection("products");
         const importedProducts = database.collection('imports');
@@ -37,7 +36,6 @@ async function run() {
         // product,all product, product details related api
 
         // insert the exported product into productCollection
-
         app.patch('/products/:id', async (req, res) => {
             const id = req.params.id;
             const { quantity } = req.body;
@@ -124,11 +122,9 @@ async function run() {
         })
 
 
-        // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("You successfully connected to MongoDB!");
     } finally {
-        // Ensures that the client will close when you finish/error
         // await client.close();
     }
 }
